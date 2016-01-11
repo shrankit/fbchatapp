@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>{{room_name}}</title>
+        <link rel="stylesheet" href="../css/bootstrap.css">
+        
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+        
+        <script>
+            $(function(){
+                var host = '{{config.host}}';
+                var messages =  io.connect(host + '/messages');
+                var roomNum = {{room_number}}
+                var userName = '{{user.fullname}}';
+                var userPic = '{{user.profilePic}}';
+              
+                messages.on('connect',function(){
+                    console.log('Connection Established');
+                    messages.emit('joinroom',{room:roomNum, user:userName, userPic: userPic})
+                });
+            
+                $(document).on('keyup','#msgInput', function(e){
+                    if(e.which === 13 && $(this).val()!=''){
+                        messages.emit('newMessage',{
+                            room_number: roomNum,
+                            user:userName,
+                            userPic:userPic,
+                            message:$(this).val()
+                        })
+                        
+                        
+                        updateMessageFeed(userPic,$(this).val());
+                        $(this).val('');
+                    }
+                })
+                messages.on('messagefeed',function(data){
+                    var msgs = JSON.parse(data);
+                    updateMessageFeed(msgs.userPic, msgs.message);
+                })
+                
+                function updateMessageFeed(userPic, message){
+                    
+                    var newPing = '<li class="list-group-item list-group-item-warning">';
+                        newPing += '<div class="msgbox">';
+                        newPing +=  '<div class="pic">';
+                        newPing +=   '<img style="float:left;" src="'+userPic+'">';
+                        newPing +=  '</div>';
+                        newPing +=  '<div class="msg">';
+                        newPing +=   '<p>'+message+'</p>';
+                        newPing +=  '</div>';
+                                            
+                        newPing +=  '</div>';
+                        newPing +=  '</li>';
+                    
+                    $(newPing).hide().prependTo($('.messages')).slideDown(100);
+                }
+            
+              messages.on('updateUsersList', function(data){
+                console.log('updatingUser List');
+                var userList = JSON.parse(data);
+                $('.users').html('');
+                
+                for(var i = 0; i < userList.length; i++){
+                    var liUser = '<li class="list-group-item success"><img style="float:left;" src="' + userList[i].userPic +'"><h5 class="label-success">' + userList[i].user + '</h5></li>';
+                    
+                    $(liUser).prependTo($('.users'));
+                }
+                
+                
+                
+            });
+            
+            setInterval(function(){
+                messages.emit('updateList', {room:roomNum});
+            }, 15* 1000);
+                
+            })
+        </script>
+    </head>    
+    <body>
+        <div class="container">
+            <div class="row cr-userbox">
+                <img src={{user.profilePic}}>
+                <h3>{{user.fullname}} | <a href="/logout">Logout | </a> <a href="/chatrooms">More Chatrooms</a></h3>
+            </div>
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h5 class="panel-title">{{room_name}}</h5>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="rm-messages">
+                                <ul class="messages list-group">
+                                    
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <ul class="users" class="list-group">
+                                
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="row">
+                          <input id="msgInput" type="text" class="form-control" placeholder="Type your message here" aria-describedby="sizing-addon1">
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+    </body>
+</html>

@@ -1,0 +1,10 @@
+{
+    "dbURL":"mongodb://chatappuser:chatapppass@ds039165.mongolab.com:39165/appchat",
+    "sessionSecret":"LASDJASKNEWR@#$@#$JISDJSK#",
+    "fb":{
+        "appID":"1106016852742348",
+        "appSecret":"49bfedd97e45576c1362855502d4b65b",
+        "callbackURL":"http://fbchatapp.herokuapp.com/auth/facebook/callback"
+    },
+    "host":"http://fbchatapp.herokuapp.com"
+}
