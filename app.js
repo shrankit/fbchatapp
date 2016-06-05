@@ -33,7 +33,7 @@ app.use(session({secret:config.sessionSecret,
                 saveUninitialized:true,
                 resave:true,
                 store: new ConnectMongo({
-                    mongoose_connection:mongoose.connections[0],
+                    mongooseConnection:mongoose.connections[0],
                     stringify:true
                 })
         }));
